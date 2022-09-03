@@ -25,6 +25,9 @@ public class Address {
         this.postalCode = postalCode;
     }
 
+    public Address() {
+    }
+
     public String getStreet() {
         return street;
     }
@@ -49,11 +52,11 @@ public class Address {
         this.country = country;
     }
 
-    public String getHouseNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setHouseNumber(String number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 

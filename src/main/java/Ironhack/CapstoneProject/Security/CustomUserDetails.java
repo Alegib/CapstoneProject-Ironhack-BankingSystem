@@ -1,3 +1,4 @@
+
 package Ironhack.CapstoneProject.Security;
 
 import Ironhack.CapstoneProject.models.Users.Role;
@@ -61,3 +62,5 @@ public class CustomUserDetails implements UserDetails {
     }
 
 }
+
+

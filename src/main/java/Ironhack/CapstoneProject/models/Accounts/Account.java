@@ -4,12 +4,15 @@ import Ironhack.CapstoneProject.models.Enums.Status;
 import Ironhack.CapstoneProject.models.Transactions.Money;
 import Ironhack.CapstoneProject.models.Transactions.Transaction;
 import Ironhack.CapstoneProject.models.Users.AccountHolder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -17,45 +20,48 @@ import java.util.List;
 public abstract class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
+
     private Long id;
 
     @Embedded
     @AttributeOverride(name = "amount", column = @Column(name = "current_balance"))
-    @NotNull
+
     private Money balance;
-    @NotNull
+
     @Enumerated(EnumType.STRING)
     private Status status;
-    @NotNull
-    private LocalDateTime creationDate;
-    @NotEmpty
-    private String secretKey;
-    @ManyToOne
-    @NotNull
-    private AccountHolder primaryOwner;
-    @ManyToOne
-    private AccountHolder secondaryOwner;
 
-    @OneToMany(mappedBy = "sendingAccount")
+    private LocalDateTime creationDate;
+
+    private String secretKey;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private AccountHolder primaryOwner;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private AccountHolder secondaryOwner;
+    private LocalDateTime interestDate;
+    private LocalDateTime monthlyFeeDate;
+
+
+    @OneToMany(mappedBy = "recipientAccount", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Transaction> transactionReceivedList;
+    @OneToMany(mappedBy = "senderAccount", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Transaction> transactionSentList;
 
-    @OneToMany(mappedBy = "receivingAccount")
-    private List<Transaction> transactionReceivedList;
-
     //Checking Accounts, StudentChecking and Savings Constructors
-    public Account(AccountHolder primaryOwner, AccountHolder secondaryOwner, Money balance, Status status, String secretKey) {
+    public Account(AccountHolder primaryOwner, AccountHolder secondaryOwner, Money balance, Status status) {
         this.balance = balance;
         this.status = status;
-        this.secretKey = secretKey;
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
     }
 
-    public Account(AccountHolder primaryOwner, Money balance, Status status, String secretKey) {
+    public Account(AccountHolder primaryOwner, Money balance, Status status) {
         this.balance = balance;
         this.status = status;
-        this.secretKey = secretKey;
         this.primaryOwner = primaryOwner;
     }
 
@@ -73,11 +79,29 @@ public abstract class Account {
         this.primaryOwner = primaryOwner;
     }
 
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
 
     public Account() {
+    }
+
+    public void setSecretKey() {
+        Random rand = new Random();
+        List<Character> characterList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            int num = rand.nextInt(65, 90);
+            if (i < 4) {
+                char ch = (char) num;
+                characterList.add(ch);
+            }
+            num = rand.nextInt(48, 57);
+            char ch = (char) num;
+            characterList.add(ch);
+        }
+        StringBuilder sb = new StringBuilder();
+
+        for (Character ch : characterList) {
+            sb.append(ch);
+        }
+        secretKey = sb.toString();
     }
 
     public Long getId() {
@@ -116,9 +140,6 @@ public abstract class Account {
         return secretKey;
     }
 
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
 
     public AccountHolder getPrimaryOwner() {
         return primaryOwner;
@@ -136,12 +157,29 @@ public abstract class Account {
         this.secondaryOwner = secondaryOwner;
     }
 
-    public List<Transaction> getTransactionSentList() {
-        return transactionSentList;
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
     }
 
-    public void setTransactionSentList(List<Transaction> transactionSentList) {
-        this.transactionSentList = transactionSentList;
+    public List<Transaction> getTransactionList() {
+        return transactionReceivedList;
+    }
+
+    public void setTransactionList(List<Transaction> transactionList) {
+        this.transactionReceivedList = transactionList;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getInterestDate() {
+        return interestDate;
+    }
+
+    public void setInterestDate(LocalDateTime interestDate) {
+        this.interestDate = interestDate;
     }
 
     public List<Transaction> getTransactionReceivedList() {
@@ -150,5 +188,21 @@ public abstract class Account {
 
     public void setTransactionReceivedList(List<Transaction> transactionReceivedList) {
         this.transactionReceivedList = transactionReceivedList;
+    }
+
+    public List<Transaction> getTransactionSentList() {
+        return transactionSentList;
+    }
+
+    public void setTransactionSentList(List<Transaction> transactionSentList) {
+        this.transactionSentList = transactionSentList;
+    }
+
+    public LocalDateTime getMonthlyFeeDate() {
+        return monthlyFeeDate;
+    }
+
+    public void setMonthlyFeeDate(LocalDateTime monthlyFeeDate) {
+        this.monthlyFeeDate = monthlyFeeDate;
     }
 }

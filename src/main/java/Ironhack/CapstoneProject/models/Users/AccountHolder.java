@@ -2,27 +2,31 @@ package Ironhack.CapstoneProject.models.Users;
 
 import Ironhack.CapstoneProject.models.Accounts.Account;
 import Ironhack.CapstoneProject.models.Users.Address.Address;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class AccountHolder {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    private Long id;
-    @NotEmpty
+public class AccountHolder extends User{
+
     private String name;
-    @NotNull
+
     private Integer age;
-    @NotEmpty
+
+    private LocalDate dateOfBirth;
+
     private String email;
-    @NotEmpty
+
     private String phoneNumber;
-    @NotNull
+
     @Embedded
     private Address address;
 
@@ -36,31 +40,34 @@ public class AccountHolder {
     })
     private Address mailingAddress;
 
-    @OneToOne
-    private User user;
+
+    @OneToMany(mappedBy = "primaryOwner", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Account> accountList = new ArrayList<>();
 
 
-    public AccountHolder(String name, Integer age, String email, String phoneNumber, Address address) {
+    public AccountHolder(String name, Integer age, LocalDate dateOfBirth, String username, String password, String email, String phoneNumber, Address address) {
+        super(username, password);
         this.name = name;
         this.age = age;
+        this.dateOfBirth = dateOfBirth;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
     }
 
+    public AccountHolder(String name, Integer age, String username, String password, LocalDate dateOfBirth, Address address) {
+        super(username, password);
+        this.name = name;
+        this.age = age;
+        this.dateOfBirth = dateOfBirth;
+        this.address = address;
+    }
+
+
     public AccountHolder() {
     }
 
-    @OneToMany(mappedBy = "primaryOwner")
-    private List<Account> accountList;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -106,7 +113,25 @@ public class AccountHolder {
         return accountList;
     }
 
-    public void setAccountList(List<Account> accountList) {
-        this.accountList = accountList;
+    public void setAccountList(Account account) {
+        this.accountList.add(account);
     }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Address getMailingAddress() {
+        return mailingAddress;
+    }
+
+    public void setMailingAddress(Address mailingAddress) {
+        this.mailingAddress = mailingAddress;
+    }
+
+
 }

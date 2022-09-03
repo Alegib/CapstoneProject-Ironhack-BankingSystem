@@ -6,6 +6,7 @@ import Ironhack.CapstoneProject.models.Users.AccountHolder;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Random;
 
 @Entity
@@ -13,12 +14,12 @@ public class CreditCard extends Account{
 
     public static final BigDecimal DEFAULT_CREDIT_LIMIT = BigDecimal.valueOf(100);
     public static final BigDecimal MAX_CREDIT_LIMIT = BigDecimal.valueOf(100000);
-    public static final BigDecimal DEFAULT_INTEREST_RATE = BigDecimal.valueOf(0.2);
-    public static final BigDecimal MIN_INTEREST_RATE = BigDecimal.valueOf(0.1);
+    public static final BigDecimal DEFAULT_INTEREST_RATE = new BigDecimal(0.2, new MathContext(4));
+    public static final BigDecimal MIN_INTEREST_RATE = new BigDecimal(0.1, new MathContext(4));
 
-    @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "card_interest_rate"))
     private BigDecimal interestRate;
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "credit_limit"))
     private Money creditLimit;
 
     private String cardNumber;
@@ -29,6 +30,7 @@ public class CreditCard extends Account{
         this.creditLimit = creditLimit;
         setCardNumber();
         setCreationDate();
+        setSecretKey();
     }
 
     public CreditCard(AccountHolder primaryOwner, Money balance, BigDecimal interestRate, Money creditLimit) {
@@ -37,14 +39,10 @@ public class CreditCard extends Account{
         this.creditLimit = creditLimit;
         setCardNumber();
         setCreationDate();
+        setSecretKey();
     }
-
 
     public CreditCard() {
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
     }
 
     public BigDecimal getInterestRate() {
@@ -55,22 +53,6 @@ public class CreditCard extends Account{
         this.interestRate = interestRate;
     }
 
-    public BigDecimal getDEFAULT_CREDIT_LIMIT() {
-        return DEFAULT_CREDIT_LIMIT;
-    }
-
-    public BigDecimal getMAX_CREDIT_LIMIT() {
-        return MAX_CREDIT_LIMIT;
-    }
-
-    public BigDecimal getDEFAULT_INTEREST_RATE() {
-        return DEFAULT_INTEREST_RATE;
-    }
-
-    public BigDecimal getMIN_INTEREST_RATE() {
-        return MIN_INTEREST_RATE;
-    }
-
     public Money getCreditLimit() {
         return creditLimit;
     }
@@ -79,19 +61,21 @@ public class CreditCard extends Account{
         this.creditLimit = creditLimit;
     }
 
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
+    public String getCardNumber() {
+        return cardNumber;
     }
 
     public void setCardNumber() {
         int length = 4;
         Random rand = new Random();
+        String randCardNum = "";
         for (int i = 0; i < length; i++){
             int randomGen = rand.nextInt(1000, 9999);
-            if (i < 3) cardNumber += randomGen + "-";
-            else{cardNumber += randomGen;}
-
+            if (i < 3) randCardNum += randomGen + "-";
+            else{randCardNum += randomGen;}
         }
+        cardNumber = randCardNum;
+
     }
 }
 

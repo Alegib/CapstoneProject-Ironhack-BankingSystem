@@ -1,5 +1,7 @@
 package Ironhack.CapstoneProject.models.Users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -8,12 +10,11 @@ import javax.validation.constraints.NotNull;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     private Long id;
-    @NotEmpty
+
     private String role;
-    @ManyToOne
-    @NotNull
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private User user;
 
     public Role(String role, User user) {

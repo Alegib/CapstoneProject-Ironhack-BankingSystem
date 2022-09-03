@@ -2,24 +2,38 @@ package Ironhack.CapstoneProject.DTO;
 
 import Ironhack.CapstoneProject.models.Enums.PaymentMode;
 import Ironhack.CapstoneProject.models.Transactions.Money;
-
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 public class TransactionDTO {
     @NotNull
-    private Money amount;
+    private Money transactionAmount;
+
     private PaymentMode paymentMode;
     @NotNull
-    private Long receivingAccountId;
-    private LocalDateTime dateTime;
+    private Long recipientAccountId;
+    @NotEmpty
+    private String secretKey;
+    private String description;
 
-    public Money getAmount() {
-        return amount;
+    private LocalDateTime date;
+
+    public TransactionDTO(Money transactionAmount, PaymentMode paymentMode, Long recipientAccountId, String secretKey, String description) {
+        this.transactionAmount = transactionAmount;
+        this.paymentMode = paymentMode;
+        this.recipientAccountId = recipientAccountId;
+        this.secretKey = secretKey;
+        this.description = description;
     }
 
-    public void setAmount(Money amount) {
-        this.amount = amount;
+    public Money getTransactionAmount() {
+        return transactionAmount;
+    }
+
+    public void setTransactionAmount(Money transactionAmount) {
+        this.transactionAmount = transactionAmount;
     }
 
     public PaymentMode getPaymentMode() {
@@ -30,20 +44,37 @@ public class TransactionDTO {
         this.paymentMode = paymentMode;
     }
 
-    public Long getReceivingAccountId() {
-        return receivingAccountId;
+    public Long getRecipientAccountId() {
+        return recipientAccountId;
     }
 
-    public void setReceivingAccountId(Long receivingAccountId) {
-        this.receivingAccountId = receivingAccountId;
+    public void setRecipientAccountId(Long recipientAccountId) {
+        this.recipientAccountId = recipientAccountId;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
+    public String getSecretKey() {
+        return secretKey;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
     }
 
+
+    public String getDescription() {
+        return description;
+    }
+
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
 }

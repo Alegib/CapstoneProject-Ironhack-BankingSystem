@@ -1,3 +1,4 @@
+
 package Ironhack.CapstoneProject.Security;
 
 import Ironhack.CapstoneProject.Services.CustomUserDetailsService;
@@ -21,29 +22,47 @@ public class SecurityConfiguration {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
 
+
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConf) throws Exception {
+
         return authConf.getAuthenticationManager();
     }
-
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.httpBasic();
 
         httpSecurity.authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/account-page/all-accounts").hasRole("ADMIN")
-                .mvcMatchers(HttpMethod.POST, "/account-page/create-account").hasRole("ADMIN")
+
+                .mvcMatchers(HttpMethod.GET, "/all-accounts").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/create-account").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.PATCH, "/change-status").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.GET, "/user-accounts").hasAnyRole("ADMIN", "ACCOUNT_HOLDER")
                 .mvcMatchers(HttpMethod.GET, "/all-accountHolders").hasRole("ADMIN")
-                .mvcMatchers(HttpMethod.POST, "/add-accountHolder").hasRole("ADMIN")
-//                .mvcMatchers(HttpMethod.PATCH, "/updateAuthor").hasAnyRole("ADMIN", "CONTRIBUTOR")
-//                .mvcMatchers(HttpMethod.DELETE, "/deleteAuthor").hasAnyRole("ADMIN")
-//                .mvcMatchers(HttpMethod.DELETE, "/deletePost").hasAnyRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/create-accountHolder").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/create-thirdParty").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/all-transactions/{id}").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/transaction/send").hasAnyRole("ADMIN", "ACCOUNT_HOLDER")
+                .mvcMatchers(HttpMethod.POST, "/transaction/third-party").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/user-transactions").hasAnyRole("ADMIN", "THIRD_PARTY")
+                .mvcMatchers(HttpMethod.POST, "/find-transaction/{id}").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/modify-balance").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/find-account").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/find-thirdParty/{id}").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/find-thirdParty-name").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.DELETE,"/delete-user").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.GET,"/all-logins").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.GET,"/all-user-ipAddress").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.DELETE, "/delete-account").hasRole("ADMIN")
+
                 .anyRequest().permitAll();
 
 
@@ -53,4 +72,9 @@ public class SecurityConfiguration {
 
     }
 
+
 }
+
+
+
+

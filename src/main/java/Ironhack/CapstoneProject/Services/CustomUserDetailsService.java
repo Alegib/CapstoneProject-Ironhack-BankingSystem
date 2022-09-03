@@ -1,3 +1,4 @@
+
 package Ironhack.CapstoneProject.Services;
 
 import Ironhack.CapstoneProject.Security.CustomUserDetails;
@@ -28,6 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         return customUserDetails;
     }
 }
+
+
 
 
 

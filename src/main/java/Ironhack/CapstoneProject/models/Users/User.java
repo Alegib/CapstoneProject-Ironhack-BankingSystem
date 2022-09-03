@@ -1,9 +1,13 @@
 package Ironhack.CapstoneProject.models.Users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -11,16 +15,17 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
+
     private Long id;
-    @Column(unique = true)
-    @NotEmpty
+    @Column(length = 30, nullable = false, unique = true)
+
     private String username;
-    @NotEmpty
+
     private String password;
 
-    @OneToOne
-    AccountHolder accountHolder;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Login> loginList;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Role> roles = new HashSet<>();
@@ -68,5 +73,6 @@ public class User {
     public void addRole(Role role) {
         roles.add(role);
     }
+
 
 }

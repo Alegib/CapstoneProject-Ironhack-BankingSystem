@@ -1,37 +1,36 @@
 package Ironhack.CapstoneProject.models.Accounts;
 
+import Ironhack.CapstoneProject.models.Transactions.Money;
 import Ironhack.CapstoneProject.models.Transactions.Transaction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 
 @Entity
-public class ThirdPartyAccount {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    private Long id;
-    @NotEmpty
+public class ThirdPartyAccount extends Account{
+
+    @Column(length = 30, unique = true)
+
     private String name;
-    @NotEmpty
     private String hashKey;
 
-    @OneToMany(mappedBy = "thirdPartyAccount")
+    @OneToMany(mappedBy = "thirdPartyAccount", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Transaction> transactionList;
 
-    public ThirdPartyAccount(String name, String hashKey) {
+    public ThirdPartyAccount(String name) {
         this.name = name;
-        this.hashKey = hashKey;
+        setHashKey();
+        setCreationDate();
+        setBalance(new Money(BigDecimal.valueOf(0)));
+
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public ThirdPartyAccount() {
     }
 
     public String getName() {
@@ -46,10 +45,21 @@ public class ThirdPartyAccount {
         return hashKey;
     }
 
-    public void setHashKey(String hashKey) {
-        this.hashKey = hashKey;
-    }
+    public void setHashKey() {
+        String randName = "";
+        Random rand = new Random();
+        String[] splitName = name.split("");
+        for (int i = 0; i < splitName.length; i++) {
 
+            splitName[rand.nextInt(splitName.length)] += splitName[i];
+        }
+        for (String letter : splitName){
+            randName += letter;
+        }
+
+        this.hashKey = String.valueOf(randName.hashCode());
+
+    }
     public List<Transaction> getTransactionList() {
         return transactionList;
     }
