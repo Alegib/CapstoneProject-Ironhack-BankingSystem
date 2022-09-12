@@ -60,6 +60,7 @@ public class ExecuteTransference {
                         if (senderAccount.getBalance().getAmount().compareTo(tran.getAmount().getAmount()) < 0){
                             emailService.sendMail(accountHolder.getEmail(), "Transaction Canceled.", "We're sorry to inform you that the transaction has been canceled due to insufficient funds in your account.");
                             transactionRepository.delete(tran);
+                            break;
                         }
                        recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(tran.getAmount().getAmount())));
                        senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(tran.getAmount().getAmount())));
@@ -73,6 +74,7 @@ public class ExecuteTransference {
                         if (senderAccount.getBalance().getAmount().compareTo(tran.getAmount().getAmount()) < 0){
                             emailService.sendMail(accountHolder.getEmail(), "Transaction Canceled.", "We're sorry to inform you that the transaction has been canceled due to insufficient funds in your account.");
                             transactionRepository.delete(tran);
+                            break;
                         }
                         recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(tran.getAmount().getAmount())));
                         senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(tran.getAmount().getAmount())));

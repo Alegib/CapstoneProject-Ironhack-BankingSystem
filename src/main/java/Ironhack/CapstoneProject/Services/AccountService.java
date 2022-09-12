@@ -40,7 +40,7 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account createAccount(AccountDTO accountDTO) {
+    public Account createCheckingAccount(AccountDTO accountDTO) {
         if (accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
             if (accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get().getAge() < 24) {
                 AccountHolder accountHolder = accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get();
@@ -63,7 +63,7 @@ public class AccountService {
                 checking.setInterestDate(checking.getCreationDate());
                 checking.setMonthlyFeeDate(LocalDateTime.now());
 
-                if (accountDTO.getBalance().getAmount().compareTo(Checking.MINIMUM_BALANCE.getAmount()) < 0){
+                if (accountDTO.getBalance().getAmount().compareTo(Checking.MINIMUM_BALANCE.getAmount()) < 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Balance cannot be lower than " + Checking.MINIMUM_BALANCE.getAmount());
                 }
 
@@ -78,38 +78,48 @@ public class AccountService {
                 }
                 return accountRepository.save(checking);
 
-            } else if (accountDTO.getAccountType().equals(AccountType.SAVINGS)) {
-                Savings savings = new Savings();
-                savings.setPrimaryOwner(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get());
-                savings.setBalance(accountDTO.getBalance());
-                savings.setSecretKey();
-                savings.setStatus(Status.ACTIVE);
-                savings.setCreationDate();
-                savings.setInterestDate(LocalDateTime.now());
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No records found, register the account holder before opening an account or try again with the correct Id.");
 
-                if(accountDTO.getInterestRate() == null){
-                    savings.setInterestRate(Savings.DEFAULT_INTEREST_RATE);
+    }
+
+    public Account createSavingsAccount(AccountDTO accountDTO) {
+        if (accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
+            Savings savings = new Savings();
+            savings.setPrimaryOwner(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get());
+            savings.setBalance(accountDTO.getBalance());
+            savings.setSecretKey();
+            savings.setStatus(Status.ACTIVE);
+            savings.setCreationDate();
+            savings.setInterestDate(LocalDateTime.now());
+
+            if (accountDTO.getInterestRate() == null) {
+                savings.setInterestRate(Savings.DEFAULT_INTEREST_RATE);
+            } else if (accountDTO.getInterestRate().compareTo(Savings.MAX_INTEREST_RATE) > 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be higher than " + Savings.MAX_INTEREST_RATE);
+            } else if (accountDTO.getInterestRate().compareTo(Savings.DEFAULT_INTEREST_RATE) < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be lower than " + Savings.DEFAULT_INTEREST_RATE);
+            } else if (accountDTO.getInterestRate() != null) {
+                savings.setInterestRate(accountDTO.getInterestRate());
+            }
+
+
+            if (accountDTO.getSecondaryOwnerId() != null) {
+                if (accountHolderRepository.findById(accountDTO.getSecondaryOwnerId()).isPresent()) {
+                    savings.setSecondaryOwner(accountHolderRepository.findById(accountDTO.getSecondaryOwnerId()).get());
+                    return accountRepository.save(savings);
                 }
-                else if(accountDTO.getInterestRate().compareTo(Savings.MAX_INTEREST_RATE) > 0){
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be higher than " + Savings.MAX_INTEREST_RATE);
-                }
-                else if(accountDTO.getInterestRate().compareTo(Savings.DEFAULT_INTEREST_RATE) < 0){
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be lower than " + Savings.DEFAULT_INTEREST_RATE);
-                }
-                else if (accountDTO.getInterestRate() != null){ savings.setInterestRate(accountDTO.getInterestRate());}
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The Id inserted as a second-owner doesn't exist.");
+            }
+            return accountRepository.save(savings);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No records found, register the account holder before opening an account or try again with the correct Id.");
+    }
 
 
-
-                if (accountDTO.getSecondaryOwnerId() != null) {
-                    if (accountHolderRepository.findById(accountDTO.getSecondaryOwnerId()).isPresent()) {
-                        savings.setSecondaryOwner(accountHolderRepository.findById(accountDTO.getSecondaryOwnerId()).get());
-                        return accountRepository.save(savings);
-                    }
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The Id inserted as a second-owner doesn't exist.");
-                }
-                return accountRepository.save(savings);
-
-            } else if (accountDTO.getAccountType().equals(AccountType.CREDIT_CARD)) {
+        public Account createCreditCard(AccountDTO accountDTO) {
+            if (accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
                 CreditCard creditCard = new CreditCard();
                 creditCard.setPrimaryOwner(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get());
                 creditCard.setBalance(accountDTO.getBalance());
@@ -120,29 +130,23 @@ public class AccountService {
                 creditCard.setMonthlyFeeDate(LocalDateTime.now());
                 creditCard.setCardNumber();
 
-                if (accountDTO.getInterestRate() == null){
+                if (accountDTO.getInterestRate() == null) {
                     creditCard.setInterestRate(CreditCard.DEFAULT_INTEREST_RATE);
-                }
-                else if(accountDTO.getInterestRate().compareTo(CreditCard.MIN_INTEREST_RATE) < 0){
+                } else if (accountDTO.getInterestRate().compareTo(CreditCard.MIN_INTEREST_RATE) < 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be lower than " + CreditCard.MIN_INTEREST_RATE);
-                }
-                else if(accountDTO.getInterestRate().compareTo(CreditCard.DEFAULT_INTEREST_RATE) > 0){
+                } else if (accountDTO.getInterestRate().compareTo(CreditCard.DEFAULT_INTEREST_RATE) > 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interest rate cannot be higher than " + CreditCard.DEFAULT_INTEREST_RATE);
-                }
-                else if(accountDTO.getInterestRate() != null){
+                } else if (accountDTO.getInterestRate() != null) {
                     creditCard.setInterestRate(accountDTO.getInterestRate());
                 }
 
-                if (creditCard.getCreditLimit() == null){
+                if (creditCard.getCreditLimit() == null) {
                     creditCard.setCreditLimit(new Money(CreditCard.DEFAULT_CREDIT_LIMIT));
-                }
-                else if (accountDTO.getCreditLimit().getAmount().compareTo(CreditCard.MAX_CREDIT_LIMIT) > 0){
+                } else if (accountDTO.getCreditLimit().getAmount().compareTo(CreditCard.MAX_CREDIT_LIMIT) > 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit Limit cannot be higher than " + CreditCard.MAX_CREDIT_LIMIT);
-                }
-                else if (accountDTO.getCreditLimit().getAmount().compareTo(CreditCard.DEFAULT_CREDIT_LIMIT) < 0){
+                } else if (accountDTO.getCreditLimit().getAmount().compareTo(CreditCard.DEFAULT_CREDIT_LIMIT) < 0) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit Limit cannot be lower than " + CreditCard.DEFAULT_CREDIT_LIMIT);
-                }
-                else if(accountDTO.getCreditLimit() != null){
+                } else if (accountDTO.getCreditLimit() != null) {
                     creditCard.setCreditLimit(accountDTO.getCreditLimit());
                 }
 
@@ -156,9 +160,10 @@ public class AccountService {
                 }
                 return accountRepository.save(creditCard);
             }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No records found, register the account holder before opening an account or try again with the correct Id.");
+
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No records found, register the account holder before opening an account or try again with the correct Id.");
-    }
+
 
 
 

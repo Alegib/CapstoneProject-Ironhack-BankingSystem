@@ -10,6 +10,7 @@ import java.math.MathContext;
 import java.util.Random;
 
 @Entity
+
 public class CreditCard extends Account{
 
     public static final BigDecimal DEFAULT_CREDIT_LIMIT = BigDecimal.valueOf(100);

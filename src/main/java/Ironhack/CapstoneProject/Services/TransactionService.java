@@ -125,7 +125,7 @@ public class TransactionService {
 
                         /*
                         Calculates the average between the total amount of transactions related to a specific secret key, and the number of days until last transaction.
-                        If the count of the current day's transactions is bigger than 150% of the average, it sends a warning email to the customer.
+                        If the count of the current's day transactions is bigger than 150% of the average, it sends a warning email to the customer.
                          */
 
 

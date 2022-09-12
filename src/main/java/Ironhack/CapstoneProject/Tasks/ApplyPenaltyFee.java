@@ -44,11 +44,12 @@ public class ApplyPenaltyFee implements ApplicationListener<AuthenticationSucces
     public void onApplicationEvent(AuthenticationSuccessEvent event) {
         Authentication auth = event.getAuthentication();
         User user = userRepository.findByUsername(auth.getName()).get();
-        String userEmail = accountHolderRepository.findById(user.getId()).get().getEmail();
+
 
         List<Account> userAccounts = accountRepository.findByPrimaryOwnerId(user.getId());
 
         for (Account account : userAccounts) {
+            String userEmail = accountHolderRepository.findById(user.getId()).get().getEmail();
 
             List<Transaction> penaltyTransactions = transactionRepository.findByDescription(account.getId());
 

@@ -28,11 +28,23 @@ public class AccountController {
 
     }
 
-    @PostMapping("/create-account")
+    @PostMapping("/create-savings")
     @ResponseStatus(HttpStatus.CREATED)
-    public Account createAccount(@RequestBody AccountDTO accountDTO){
-        return accountService.createAccount(accountDTO);
+    public Account createSavings(@RequestBody AccountDTO accountDTO){
+        return accountService.createSavingsAccount(accountDTO);
     }
+
+    @PostMapping("/create-creditCard")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Account createCreditCard(@RequestBody AccountDTO accountDTO){
+        return accountService.createCreditCard(accountDTO);
+    }
+    @PostMapping("/create-checking")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Account createCheckingAccount(@RequestBody AccountDTO accountDTO){
+        return accountService.createCheckingAccount(accountDTO);
+    }
+
 
 
     @PatchMapping("/change-status")
